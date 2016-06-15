@@ -1,8 +1,7 @@
 Binary Buffer Encoder for Javascript
-
 ==================================================
 
-This library is a buffer-based version of [BiSON](https://github.com/BonsaiDen/BiSON.js/).
+This library is a buffer-based version of [BiSON](https://github.com/BonsaiDen/BiSON.js/) by BonsaiDen.
 
 **BinSON** provides a JSON like encoding for JavaScript objects but focuses on providing a format that is optimized for use with WebSockets and other applications where bandwidth and performance are a major concern.
 

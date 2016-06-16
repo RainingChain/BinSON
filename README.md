@@ -27,11 +27,11 @@ The library exports a `encode` and a `decode` method.
 	
 ## Init Options
 
-`bufferSize`: Size in bytes of the static buffer. Encoding an object bigger than this will fail. `default=100000`
+- `bufferSize`: Size in bytes of the static buffer. Encoding an object bigger than this will fail. `default=100000`
 
-`startOffset`: Starts the encoding at the offset specified. Useful for prepending an id. `default=0`
+- `startOffset`: Starts the encoding at the offset specified. Useful for prepending an id. `default=0`
 
-`errorHandler`: Function triggered when submitting invalid data (ex: number out of range).
+- `errorHandler`: Function triggered when submitting invalid data (ex: number out of range).
 
 Example
 

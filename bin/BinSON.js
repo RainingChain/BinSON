@@ -68,15 +68,7 @@ var MODULE_BinSON;
                 value = 0;
                 errorHandler('Numberic value is isNaN.');
             }
-            else if (value > 214748364) {
-                value = 214748364;
-                errorHandler('Numberic value is greater than 214748364.');
-            }
-            else if (value < -214748364) {
-                value = -214748364;
-                errorHandler('Numberic value is less than -214748364.');
-            }
-            var type = value !== (value | 0) ? 1 : 0, sign = 0;
+            var type = value % 1 === 0 || value > 2147483648 || value < -2147483648 ? 0 : 1, sign = 0;
             if (value < 0) {
                 value = -value;
                 sign = 1;
@@ -128,18 +120,23 @@ var MODULE_BinSON;
                 write(value >> 8 & 0xff, 8);
                 write(value & 0xff, 8);
             }
-            else if (value < 16777216) {
+            else if (value < 2147483648) {
                 write(6, 3);
+                write(value >> 24 & 0xff, 8);
                 write(value >> 16 & 0xff, 8);
                 write(value >> 8 & 0xff, 8);
                 write(value & 0xff, 8);
             }
             else {
                 write(7, 3);
-                write(value >> 24 & 0xff, 8);
-                write(value >> 16 & 0xff, 8);
-                write(value >> 8 & 0xff, 8);
-                write(value & 0xff, 8);
+                var high = (value / 2147483648) | 0;
+                var low = (value % 2147483648) | 0;
+                write(high >> 8 & 0xff, 8);
+                write(high & 0xff, 8);
+                write(low >> 24 & 0xff, 8);
+                write(low >> 16 & 0xff, 8);
+                write(low >> 8 & 0xff, 8);
+                write(low & 0xff, 8);
             }
             write(sign, 1);
             if (type) {
@@ -301,12 +298,15 @@ var MODULE_BinSON;
                                     + read(8);
                                 break;
                             case 6:
-                                value = (read(8) << 16)
+                                value = (read(8) << 24)
+                                    + (read(8) << 16)
                                     + (read(8) << 8)
                                     + read(8);
                                 break;
                             case 7:
-                                value = (read(8) << 24)
+                                value = ((read(8) << 8)
+                                    + read(8)) * 2147483648
+                                    + (read(8) << 24)
                                     + (read(8) << 16)
                                     + (read(8) << 8)
                                     + read(8);
@@ -410,46 +410,6 @@ var MODULE_BinSON;
         };
         BinSON.dencode = function (obj) {
             return BinSON.decode(BinSON.encode(obj));
-        };
-        BinSON.testValidity = function (obj, log, name) {
-            name = name || '';
-            var a = JSON.parse(JSON.stringify(obj));
-            a = BinSON.convertFloatToInt(a, true);
-            var goal = JSON.stringify(a);
-            var res = JSON.stringify(BinSON.dencode(a));
-            var same = goal === res;
-            if (log && !same && name.length > 5) {
-                logHandler('##################\r\nnot same @ ' + name);
-                logHandler('original', obj);
-                logHandler('##########');
-                logHandler('goal', goal);
-                logHandler('##########');
-                logHandler('BinSON', res);
-                logHandler('###################');
-                for (var i in obj)
-                    BinSON.testValidity(obj[i], true, name + '.' + i);
-            }
-            return same;
-        };
-        BinSON.convertFloatToInt = function (obj, cap32Bit) {
-            /*jshint bitwise: false */
-            if (typeof obj === 'number')
-                return obj | 0;
-            if (obj === null || typeof obj !== 'object')
-                return obj;
-            for (var i in obj) {
-                if (typeof obj[i] === 'number') {
-                    if (cap32Bit && obj[i] > 214748364)
-                        obj[i] = 214748364;
-                    if (cap32Bit && obj[i] < 214748364)
-                        obj[i] = -214748364;
-                    obj[i] = obj[i] | 0;
-                }
-                else if (obj[i] !== null && typeof obj[i] === 'object')
-                    BinSON.convertFloatToInt(obj[i], cap32Bit);
-            }
-            return obj;
-            /*jshint bitwise: true */
         };
         BinSON.unitTest = function () {
             var assert = function (id, t) { if (!t)

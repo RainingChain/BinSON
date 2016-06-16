@@ -47,15 +47,15 @@ Example
 ## Encoding Limits
 
 - Floats are single precision
-- Integers are limited to 32 bits
+- Floats greater than 32 bits will be considered as integers.
+- Integers are limited to 48 bits
+- Encoded integers above 32 bits can slightly differ from the real value.
 
-Numbers that are not within the valid range will be set to the limit.
+Integers that are greater than 48 bits will not be encoded correctly. Note: `Date.now()` is less than 48 bits.
 
 `NaN` will be converted to 0.
 
 Functions and `undefined` will be converted to `null`.  
-
-Note: To send numbers greater than the limit, convert them to strings.
 
 	
 ## Extras
@@ -64,6 +64,15 @@ Note: To send numbers greater than the limit, convert them to strings.
 	
 	BinSON.compareSpeed(obj,iterations);
 	
+# Formatting Differences with BiSON
+
+Integers marked with `6` encodes on 32 bits instead of 24.
+
+Integers marked with `7` encodes on `48` bits instead of 32.
+
+Integers greater than 32 bits or split into `high` and `low` values when performing the binary operations.
+
+
 # License
 
 MIT.
